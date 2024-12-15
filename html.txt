@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Tiger Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2d;
+            color: white;
+            text-align: center;
+            margin: 0;
+        }
+
+        .game-container {
+            margin: 30px auto;
+            padding: 20px;
+            max-width: 600px;
+            background: #2e2e3f;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .title {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: #fff;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transform: rotateY(0deg);
+            transition: transform 0.6s;
+        }
+
+        .card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .buttons {
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .dragon-btn {
+            background-color: #3a6df0;
+            color: white;
+        }
+
+        .tie-btn {
+            background-color: #e5b700;
+            color: black;
+        }
+
+        .tiger-btn {
+            background-color: #e34d4d;
+            color: white;
+        }
+
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+            opacity: 0;
+            transition: opacity 0.8s;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        .won {
+            color: #00ff00;
+        }
+
+        .lost {
+            color: #ff4444;
+        }
+
+        .score {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="title">Dragon Tiger Game</div>
+        
+        <div class="cards">
+            <div class="card" id="dragon-card">?</div>
+            <div class="card" id="tiger-card">?</div>
+        </div>
+        
+        <div class="buttons">
+            <button class="dragon-btn" onclick="placeBet('Dragon')">Bet on Dragon</button>
+            <button class="tie-btn" onclick="placeBet('Tie')">Bet on Tie</button>
+            <button class="tiger-btn" onclick="placeBet('Tiger')">Bet on Tiger</button>
+        </div>
+
+        <div class="result" id="result">Place your bet!</div>
+        <div class="score" id="score">Wins: 0 | Losses: 0 | Ties: 0</div>
+    </div>
+
+    <script>
+        const elements = {
+            dragonCard: document.getElementById("dragon-card"),
+            tigerCard: document.getElementById("tiger-card"),
+            resultDisplay: document.getElementById("result"),
+            scoreDisplay: document.getElementById("score")
+        };
+
+        const CARD_MIN = 2;
+        const CARD_MAX = 14;
+
+        const scores = {
+            wins: 0,
+            losses: 0,
+            ties: 0
+        };
+
+        // Function to generate random card value (2-14 for simplicity)
+        function drawCard() {
+            return Math.floor(Math.random() * (CARD_MAX - CARD_MIN + 1)) + CARD_MIN;
+        }
+
+        // Function to determine winner
+        function determineWinner(dragonValue, tigerValue) {
+            if (dragonValue > tigerValue) return "Dragon";
+            if (tigerValue > dragonValue) return "Tiger";
+            return "Tie";
+        }
+
+        // Function to update the score display
+        function updateScore() {
+            elements.scoreDisplay.textContent = `Wins: ${scores.wins} | Losses: ${scores.losses} | Ties: ${scores.ties}`;
+        }
+
+        // Function to simulate a round of the game
+        function placeBet(playerBet) {
+            const dragonValue = drawCard();
+            const tigerValue = drawCard();
+
+            // Trigger card flip animation
+            elements.dragonCard.classList.add("flip");
+            elements.tigerCard.classList.add("flip");
+
+            setTimeout(() => {
+                // Update cards after animation
+                elements.dragonCard.textContent = dragonValue;
+                elements.tigerCard.textContent = tigerValue;
+                elements.dragonCard.classList.remove("flip");
+                elements.tigerCard.classList.remove("flip");
+
+                const winner = determineWinner(dragonValue, tigerValue);
+                let resultMessage = `${winner} Wins!`;
+
+                if (winner === playerBet) {
+                    resultMessage += " You won!";
+                    elements.resultDisplay.className = "result won show";
+                    scores.wins++;
+                } else if (winner === "Tie" && playerBet === "Tie") {
+                    resultMessage += " It's a tie, and you won!";
+                    elements.resultDisplay.className = "result won show";
+                    scores.ties++;
+                } else {
+                    resultMessage += " You lost!";
+                    elements.resultDisplay.className = "result lost show";
+                    scores.losses++;
+                }
+
+                elements.resultDisplay.textContent = resultMessage;
+                updateScore();
+
+                // Remove result highlight after some time
+                setTimeout(() => {
+                    elements.resultDisplay.classList.remove("show");
+                }, 2000);
+
+            }, 600); // Match card flip animation duration
+        }
+
+        updateScore(); // Initialize score display
+    </script>
+</body>
+</html>
